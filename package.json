@@ -1,0 +1,424 @@
+{
+  "name": "file-info-decorator",
+  "displayName": "File Info Decorator",
+  "description": "在VSCode文件树中显示文件和文件夹的时间和大小",
+  "version": "1.8.0",
+  "publisher": "xiaohong-xin-qinsheng-lin",
+  "author": "xiaohong xin, qinsheng lin",
+  "contributors": [
+    "xiaohong xin",
+    "qinsheng lin"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qinsheng-Lin/xxh-file-detail.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Qinsheng-Lin/xxh-file-detail/issues"
+  },
+  "homepage": "https://github.com/Qinsheng-Lin/xxh-file-detail#readme",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "fileInfoExplorer",
+          "name": "文件信息浏览器"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "fileInfoDecorator.refresh",
+        "title": "刷新",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "fileInfoDecorator.search",
+        "title": "搜索文件",
+        "icon": "$(search)"
+      },
+      {
+        "command": "fileInfoDecorator.clearSearch",
+        "title": "清除搜索",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "fileInfoDecorator.sortByName",
+        "title": "按名称排序",
+        "icon": "$(sort-precedence)"
+      },
+      {
+        "command": "fileInfoDecorator.sortByTime",
+        "title": "按时间排序",
+        "icon": "$(watch)"
+      },
+      {
+        "command": "fileInfoDecorator.sortBySize",
+        "title": "按大小排序",
+        "icon": "$(database)"
+      },
+      {
+        "command": "fileInfoDecorator.newFile",
+        "title": "新建文件",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "fileInfoDecorator.newFolder",
+        "title": "新建文件夹",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "fileInfoDecorator.delete",
+        "title": "删除"
+      },
+      {
+        "command": "fileInfoDecorator.rename",
+        "title": "重命名"
+      },
+      {
+        "command": "fileInfoDecorator.copyPath",
+        "title": "复制绝对路径"
+      },
+      {
+        "command": "fileInfoDecorator.copyPathForChat",
+        "title": "复制路径到Chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "fileInfoDecorator.quickCopyPath",
+        "title": "快速复制绝对路径",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "fileInfoDecorator.expandAll",
+        "title": "全部展开",
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "fileInfoDecorator.revealInFinder",
+        "title": "在文件管理器中显示"
+      },
+      {
+        "command": "fileInfoDecorator.openToSide",
+        "title": "在侧边打开"
+      },
+      {
+        "command": "fileInfoDecorator.copyRelativePath",
+        "title": "复制相对路径"
+      },
+      {
+        "command": "fileInfoDecorator.openInTerminal",
+        "title": "在集成终端中打开"
+      },
+      {
+        "command": "fileInfoDecorator.cut",
+        "title": "剪切"
+      },
+      {
+        "command": "fileInfoDecorator.copy",
+        "title": "复制"
+      },
+      {
+        "command": "fileInfoDecorator.paste",
+        "title": "粘贴"
+      },
+      {
+        "command": "fileInfoDecorator.selectForCompare",
+        "title": "选择以进行比较"
+      },
+      {
+        "command": "fileInfoDecorator.compareWithSelected",
+        "title": "与已选项目比较"
+      },
+      {
+        "command": "fileInfoDecorator.findReferences",
+        "title": "查找文件中的所有引用"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "fileInfoDecorator.search",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "fileInfoDecorator.clearSearch",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "fileInfoDecorator.sortByName",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@3"
+        },
+        {
+          "command": "fileInfoDecorator.sortByTime",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@4"
+        },
+        {
+          "command": "fileInfoDecorator.sortBySize",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@5"
+        },
+        {
+          "command": "fileInfoDecorator.expandAll",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@6"
+        },
+        {
+          "command": "fileInfoDecorator.refresh",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@7"
+        },
+        {
+          "command": "fileInfoDecorator.newFile",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@8"
+        },
+        {
+          "command": "fileInfoDecorator.newFolder",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@9"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "fileInfoDecorator.quickCopyPath",
+          "when": "view == fileInfoExplorer",
+          "group": "inline@1"
+        },
+        {
+          "command": "fileInfoDecorator.openToSide",
+          "when": "view == fileInfoExplorer && viewItem == file",
+          "group": "navigation@1"
+        },
+        {
+          "command": "fileInfoDecorator.revealInFinder",
+          "when": "view == fileInfoExplorer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "fileInfoDecorator.openInTerminal",
+          "when": "view == fileInfoExplorer && viewItem == folder",
+          "group": "navigation@3"
+        },
+        {
+          "command": "fileInfoDecorator.selectForCompare",
+          "when": "view == fileInfoExplorer && viewItem == file",
+          "group": "compare@1"
+        },
+        {
+          "command": "fileInfoDecorator.compareWithSelected",
+          "when": "view == fileInfoExplorer && viewItem == file",
+          "group": "compare@2"
+        },
+        {
+          "command": "fileInfoDecorator.cut",
+          "when": "view == fileInfoExplorer",
+          "group": "edit@1"
+        },
+        {
+          "command": "fileInfoDecorator.copy",
+          "when": "view == fileInfoExplorer",
+          "group": "edit@2"
+        },
+        {
+          "command": "fileInfoDecorator.paste",
+          "when": "view == fileInfoExplorer && viewItem == folder",
+          "group": "edit@3"
+        },
+        {
+          "command": "fileInfoDecorator.copyPathForChat",
+          "when": "view == fileInfoExplorer",
+          "group": "paths@1"
+        },
+        {
+          "command": "fileInfoDecorator.copyPath",
+          "when": "view == fileInfoExplorer",
+          "group": "paths@2"
+        },
+        {
+          "command": "fileInfoDecorator.copyRelativePath",
+          "when": "view == fileInfoExplorer",
+          "group": "paths@3"
+        },
+        {
+          "command": "fileInfoDecorator.newFile",
+          "when": "view == fileInfoExplorer && viewItem == folder",
+          "group": "create@1"
+        },
+        {
+          "command": "fileInfoDecorator.newFolder",
+          "when": "view == fileInfoExplorer && viewItem == folder",
+          "group": "create@2"
+        },
+        {
+          "command": "fileInfoDecorator.rename",
+          "when": "view == fileInfoExplorer",
+          "group": "modify@1"
+        },
+        {
+          "command": "fileInfoDecorator.delete",
+          "when": "view == fileInfoExplorer",
+          "group": "modify@2"
+        },
+        {
+          "command": "fileInfoDecorator.findReferences",
+          "when": "view == fileInfoExplorer && viewItem == file",
+          "group": "search@1"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "fileInfoDecorator.delete",
+        "key": "cmd+backspace",
+        "mac": "cmd+backspace",
+        "win": "delete",
+        "linux": "delete",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.rename",
+        "key": "enter",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.copy",
+        "key": "cmd+c",
+        "mac": "cmd+c",
+        "win": "ctrl+c",
+        "linux": "ctrl+c",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.cut",
+        "key": "cmd+x",
+        "mac": "cmd+x",
+        "win": "ctrl+x",
+        "linux": "ctrl+x",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.paste",
+        "key": "cmd+v",
+        "mac": "cmd+v",
+        "win": "ctrl+v",
+        "linux": "ctrl+v",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.copyPath",
+        "key": "cmd+shift+c",
+        "mac": "cmd+shift+c",
+        "win": "ctrl+shift+c",
+        "linux": "ctrl+shift+c",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.copyRelativePath",
+        "key": "cmd+alt+c",
+        "mac": "cmd+alt+c",
+        "win": "ctrl+alt+c",
+        "linux": "ctrl+alt+c",
+        "when": "focusedView == fileInfoExplorer"
+      },
+      {
+        "command": "fileInfoDecorator.revealInFinder",
+        "key": "cmd+alt+r",
+        "mac": "cmd+alt+r",
+        "win": "ctrl+alt+r",
+        "linux": "ctrl+alt+r",
+        "when": "focusedView == fileInfoExplorer"
+      }
+    ],
+    "configuration": {
+      "title": "File Info Decorator",
+      "properties": {
+        "fileInfoDecorator.showSize": {
+          "type": "boolean",
+          "default": true,
+          "description": "显示文件大小"
+        },
+        "fileInfoDecorator.showDate": {
+          "type": "boolean",
+          "default": true,
+          "description": "显示修改时间"
+        },
+        "fileInfoDecorator.dateFormat": {
+          "type": "string",
+          "default": "YYYY/M/D HH:mm",
+          "description": "日期格式 (YYYY=年, M=月, D=日, HH=时, mm=分)"
+        },
+        "fileInfoDecorator.showOnFolders": {
+          "type": "boolean",
+          "default": false,
+          "description": "在文件夹上也显示信息（文件夹大小为内容总大小）"
+        },
+        "fileInfoDecorator.useRelativePathOnDrop": {
+          "type": "boolean",
+          "default": true,
+          "description": "拖放文件到编辑器时使用相对路径（false则使用绝对路径）"
+        },
+        "fileInfoDecorator.openFileOnDrop": {
+          "type": "boolean",
+          "default": true,
+          "description": "拖放文件到编辑器时同时打开文件预览"
+        },
+        "fileInfoDecorator.useRelativePathForChat": {
+          "type": "boolean",
+          "default": false,
+          "description": "复制到Chat时使用相对路径（false则使用绝对路径）。默认使用绝对路径，这样AI可以更准确定位文件。"
+        }
+      }
+    },
+    "colors": [
+      {
+        "id": "fileInfoExplorer.background",
+        "description": "文件信息浏览器的背景色",
+        "defaults": {
+          "dark": "sideBar.background",
+          "light": "sideBar.background",
+          "highContrast": "sideBar.background"
+        }
+      }
+    ],
+    "configurationDefaults": {
+      "[fileInfoExplorer]": {
+        "workbench.list.activeSelectionBackground": "#0078d4",
+        "workbench.list.activeSelectionForeground": "#ffffff",
+        "workbench.list.inactiveSelectionBackground": "#37373d",
+        "workbench.list.hoverBackground": "#2a2d2e"
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+
