@@ -803,7 +803,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 class FileInfoTreeDataProvider implements vscode.TreeDataProvider<FileItem>, vscode.TreeDragAndDropController<FileItem> {
-    dropMimeTypes = ['application/vnd.code.tree.fileInfoExplorer'];
+    dropMimeTypes = ['application/vnd.code.tree.fileInfoExplorer', 'text/uri-list'];
     dragMimeTypes = ['text/uri-list', 'text/plain'];
 
     private _onDidChangeTreeData = new vscode.EventEmitter<FileItem | undefined | null | void>();
@@ -1271,16 +1271,6 @@ class FileInfoTreeDataProvider implements vscode.TreeDataProvider<FileItem>, vsc
     }
 
     public async handleDrop(target: FileItem | undefined, dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
-        const transferItem = dataTransfer.get('application/vnd.code.tree.fileInfoExplorer');
-        if (!transferItem) {
-            return;
-        }
-
-        const source = transferItem.value as FileItem[];
-        if (!source || source.length === 0) {
-            return;
-        }
-
         // 确定目标文件夹
         let targetPath: string;
         if (!target) {
@@ -1296,45 +1286,109 @@ class FileInfoTreeDataProvider implements vscode.TreeDataProvider<FileItem>, vsc
             return;
         }
 
-        // 移动文件/文件夹
-        for (const item of source) {
-            const sourcePath = item.resourceUri.fsPath;
-            const destPath = path.join(targetPath, item.label);
-
-            // 检查是否移动到自己
-            if (sourcePath === destPath) {
-                continue;
+        // 检查是否是内部拖放
+        const internalTransfer = dataTransfer.get('application/vnd.code.tree.fileInfoExplorer');
+        
+        if (internalTransfer) {
+            // 内部拖放：移动文件
+            const source = internalTransfer.value as FileItem[];
+            if (!source || source.length === 0) {
+                return;
             }
 
-            // 检查是否移动到自己的子文件夹
-            if (destPath.startsWith(sourcePath + path.sep)) {
-                vscode.window.showErrorMessage(`不能将文件夹移动到自己的子文件夹中`);
-                continue;
-            }
+            for (const item of source) {
+                const sourcePath = item.resourceUri.fsPath;
+                const destPath = path.join(targetPath, item.label);
 
-            try {
-                // 如果目标已存在，询问是否覆盖
-                if (fs.existsSync(destPath)) {
-                    const answer = await vscode.window.showWarningMessage(
-                        `目标位置已存在 "${item.label}"，是否覆盖？`,
-                        '覆盖', '跳过'
-                    );
-                    if (answer !== '覆盖') {
-                        continue;
-                    }
-                    // 删除已存在的文件/文件夹
-                    if (fs.statSync(destPath).isDirectory()) {
-                        fs.rmSync(destPath, { recursive: true, force: true });
-                    } else {
-                        fs.unlinkSync(destPath);
-                    }
+                // 检查是否移动到自己
+                if (sourcePath === destPath) {
+                    continue;
                 }
 
-                // 移动文件/文件夹
-                fs.renameSync(sourcePath, destPath);
-                vscode.window.showInformationMessage(`已移动: ${item.label}`);
-            } catch (error) {
-                vscode.window.showErrorMessage(`移动失败: ${error}`);
+                // 检查是否移动到自己的子文件夹
+                if (destPath.startsWith(sourcePath + path.sep)) {
+                    vscode.window.showErrorMessage(`不能将文件夹移动到自己的子文件夹中`);
+                    continue;
+                }
+
+                try {
+                    // 如果目标已存在，询问是否覆盖
+                    if (fs.existsSync(destPath)) {
+                        const answer = await vscode.window.showWarningMessage(
+                            `目标位置已存在 "${item.label}"，是否覆盖？`,
+                            '覆盖', '跳过'
+                        );
+                        if (answer !== '覆盖') {
+                            continue;
+                        }
+                        // 删除已存在的文件/文件夹
+                        if (fs.statSync(destPath).isDirectory()) {
+                            fs.rmSync(destPath, { recursive: true, force: true });
+                        } else {
+                            fs.unlinkSync(destPath);
+                        }
+                    }
+
+                    // 移动文件/文件夹
+                    fs.renameSync(sourcePath, destPath);
+                    vscode.window.showInformationMessage(`已移动: ${item.label}`);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`移动失败: ${error}`);
+                }
+            }
+        } else {
+            // 外部拖放：复制文件
+            const uriListTransfer = dataTransfer.get('text/uri-list');
+            if (uriListTransfer) {
+                const uriList = await uriListTransfer.asString();
+                const uris = uriList.split('\n').filter(line => line.trim());
+                
+                for (const uriString of uris) {
+                    try {
+                        const uri = vscode.Uri.parse(uriString.trim());
+                        if (uri.scheme !== 'file') {
+                            continue;
+                        }
+
+                        const sourcePath = uri.fsPath;
+                        const fileName = path.basename(sourcePath);
+                        const destPath = path.join(targetPath, fileName);
+
+                        // 检查源文件是否存在
+                        if (!fs.existsSync(sourcePath)) {
+                            continue;
+                        }
+
+                        // 如果目标已存在，询问是否覆盖
+                        if (fs.existsSync(destPath)) {
+                            const answer = await vscode.window.showWarningMessage(
+                                `目标位置已存在 "${fileName}"，是否覆盖？`,
+                                '覆盖', '跳过'
+                            );
+                            if (answer !== '覆盖') {
+                                continue;
+                            }
+                            // 删除已存在的文件/文件夹
+                            if (fs.statSync(destPath).isDirectory()) {
+                                fs.rmSync(destPath, { recursive: true, force: true });
+                            } else {
+                                fs.unlinkSync(destPath);
+                            }
+                        }
+
+                        // 复制文件或文件夹
+                        const stats = fs.statSync(sourcePath);
+                        if (stats.isDirectory()) {
+                            copyDirectory(sourcePath, destPath);
+                            vscode.window.showInformationMessage(`✅ 已复制文件夹: ${fileName}`);
+                        } else {
+                            fs.copyFileSync(sourcePath, destPath);
+                            vscode.window.showInformationMessage(`✅ 已复制文件: ${fileName}`);
+                        }
+                    } catch (error) {
+                        vscode.window.showErrorMessage(`复制失败: ${error}`);
+                    }
+                }
             }
         }
 

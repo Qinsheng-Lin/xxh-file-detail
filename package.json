@@ -2,7 +2,7 @@
   "name": "file-info-decorator",
   "displayName": "File Info Decorator",
   "description": "在VSCode文件树中显示文件和文件夹的时间和大小",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "publisher": "xiaohong-xin-qinsheng-lin",
   "author": "xiaohong xin, qinsheng lin",
   "contributors": [
