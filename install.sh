@@ -2,12 +2,12 @@
 
 # File Info Decorator 快速安装脚本
 
-echo "🚀 开始安装 File Info Decorator v1.8.0..."
+echo "🚀 开始安装 File Info Decorator v1.8.1..."
 echo ""
 
 # 检查是否存在vsix文件
-if [ ! -f "file-info-decorator-1.8.0.vsix" ]; then
-    echo "❌ 错误：找不到 file-info-decorator-1.8.0.vsix 文件"
+if [ ! -f "file-info-decorator-1.8.1.vsix" ]; then
+    echo "❌ 错误：找不到 file-info-decorator-1.8.1.vsix 文件"
     exit 1
 fi
 
@@ -17,7 +17,7 @@ cursor --uninstall-extension xiaohong-xin-qinsheng-lin.file-info-decorator 2>/de
 
 echo ""
 echo "📦 安装新版本..."
-cursor --install-extension file-info-decorator-1.8.0.vsix
+cursor --install-extension file-info-decorator-1.8.1.vsix
 
 echo ""
 echo "✨ 安装完成！"

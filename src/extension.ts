@@ -587,6 +587,78 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // 注册下载远程文件到本地命令
+    context.subscriptions.push(
+        vscode.commands.registerCommand('fileInfoDecorator.downloadToLocal', async (item?: FileItem) => {
+            // 如果没有传入item，尝试获取当前选中的项
+            if (!item) {
+                const selection = treeView.selection;
+                if (!selection || selection.length === 0) {
+                    vscode.window.showErrorMessage('请先选择文件或文件夹');
+                    return;
+                }
+                item = selection[0];
+            }
+
+            // 检查是否在远程环境
+            const isRemote = vscode.env.remoteName !== undefined;
+            if (!isRemote) {
+                vscode.window.showInformationMessage('当前不是远程环境，无需下载');
+                return;
+            }
+
+            // 选择保存位置
+            const localPath = await vscode.window.showSaveDialog({
+                defaultUri: vscode.Uri.file(path.join(require('os').homedir(), 'Downloads', item.label)),
+                filters: item.isDirectory ? undefined : {
+                    'All Files': ['*']
+                }
+            });
+
+            if (!localPath) {
+                return; // 用户取消
+            }
+
+            try {
+                if (item.isDirectory) {
+                    // 下载整个文件夹
+                    await downloadDirectory(item.resourceUri.fsPath, localPath.fsPath);
+                    vscode.window.showInformationMessage(`✅ 文件夹已下载: ${item.label}`);
+                } else {
+                    // 下载单个文件
+                    const content = await vscode.workspace.fs.readFile(item.resourceUri);
+                    await vscode.workspace.fs.writeFile(localPath, content);
+                    vscode.window.showInformationMessage(`✅ 文件已下载: ${item.label}`);
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`下载失败: ${error}`);
+            }
+        })
+    );
+
+    // 递归下载文件夹
+    async function downloadDirectory(remotePath: string, localPath: string): Promise<void> {
+        // 创建本地文件夹
+        await vscode.workspace.fs.createDirectory(vscode.Uri.file(localPath));
+
+        // 读取远程文件夹内容
+        const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(remotePath));
+
+        for (const [name, type] of entries) {
+            const remoteFilePath = path.join(remotePath, name);
+            const localFilePath = path.join(localPath, name);
+
+            if (type === vscode.FileType.Directory) {
+                // 递归下载子文件夹
+                await downloadDirectory(remoteFilePath, localFilePath);
+            } else {
+                // 下载文件
+                const content = await vscode.workspace.fs.readFile(vscode.Uri.file(remoteFilePath));
+                await vscode.workspace.fs.writeFile(vscode.Uri.file(localFilePath), content);
+            }
+        }
+    }
+
     // 注册拖放文件到编辑器的处理器
     const dropProvider: vscode.DocumentDropEditProvider = {
         provideDocumentDropEdits: async (document, position, dataTransfer, token) => {

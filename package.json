@@ -2,7 +2,7 @@
   "name": "file-info-decorator",
   "displayName": "File Info Decorator",
   "description": "在VSCode文件树中显示文件和文件夹的时间和大小",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "publisher": "xiaohong-xin-qinsheng-lin",
   "author": "xiaohong xin, qinsheng lin",
   "contributors": [
@@ -144,6 +144,11 @@
       {
         "command": "fileInfoDecorator.findReferences",
         "title": "查找文件中的所有引用"
+      },
+      {
+        "command": "fileInfoDecorator.downloadToLocal",
+        "title": "下载到本地",
+        "icon": "$(cloud-download)"
       }
     ],
     "menus": {
@@ -279,6 +284,11 @@
           "command": "fileInfoDecorator.findReferences",
           "when": "view == fileInfoExplorer && viewItem == file",
           "group": "search@1"
+        },
+        {
+          "command": "fileInfoDecorator.downloadToLocal",
+          "when": "view == fileInfoExplorer && isWorkspaceTrusted && remoteName",
+          "group": "remote@1"
         }
       ]
     },
